@@ -25,20 +25,24 @@
         </div>
         <!-- 左侧导航栏 -->
         <div class="menu">
-            <div class="level01 active"><a href="#" target="main_frame"><i
+            <div class="level01 active"><a href="./main_count.html" target="main_frame"><i
                         class="iconfont icon-yidiandiantubiao04"></i><span>首页</span></a></div>
-            <div class="level01"><a href="#"><i class="iconfont icon-icon-article"></i><span>文章管理</span><b
+            <div class="level01"><a href="./article_category.html" target="main_frame"><i
+                        class="iconfont icon-icon-article"></i><span>文章管理</span><b
                         class="iconfont icon-arrowdownl"></b></a></div>
             <ul class="level02">
-                <li><a href="#" target="main_frame"><i class="iconfont icon-previewright"></i><span>文章列表</span></a></li>
-                <li><a href="#" target="main_frame"><i class="iconfont icon-previewright"></i><span>发表文章</span></a></li>
-                <li><a href="#" target="main_frame"><i class="iconfont icon-previewright"></i><span>文章类别管理</span></a>
+                <li><a href="./article_list.html" target="main_frame"><i
+                            class="iconfont icon-previewright"></i><span>文章列表</span></a></li>
+                <li><a href="./article_release.html" target="main_frame"><i
+                            class="iconfont icon-previewright"></i><span>发表文章</span></a></li>
+                <li><a href="./article_category.html" target="main_frame"><i
+                            class="iconfont icon-previewright"></i><span>文章类别管理</span></a>
                 </li>
             </ul>
 
-            <div class="level01"><a href="#" target="main_frame"><i
+            <div class="level01"><a href="./comment_list.html" target="main_frame"><i
                         class="iconfont icon-comment"></i><span>评论管理</span></a></div>
-            <div class="level01" id="user"><a href="#" target="main_frame"><i
+            <div class="level01" id="user"><a href="./user.html" target="main_frame"><i
                         class="iconfont icon-user"></i><span>个人中心</span></a></div>
         </div>
         <!-- 顶部栏 -->
@@ -51,7 +55,8 @@
         </div>
         <!-- 右侧主体内容 -->
         <div class="main" id="main_body">
-
+            <iframe name="main_frame" src="./main_count.html" style="width: 100%;height: 100%;"
+                frameborder="0"></iframe>
         </div>
     </div>
 </body>
@@ -77,7 +82,22 @@
             alert('登出成功');
             // window.Location.href = './login.html'
             window.location.href = './login.html';
+        });
+        //左侧导航栏点击事件
+        $('div.level01').on('click', function () {
+            $(this).addClass('active').siblings('div').removeClass('active');
+            //如果点击的是文章管理这一栏
+            if ($(this).index() == 1) {
+                $('ul.level02').stop(true, false).slideToggle();
+                $('b.icon-arrowdownl').toggleClass('rotate0');
+                // 点击文章管理 触发里边第一个li的点击事件
+                $('ul.level02>li:eq(0)').trigger('click');
+            }
+        });
+        $('ul.level02>li').on('click',function(){
+            $(this).addClass('active').siblings('li').removeClass('active');
         })
+
     })
 </script>
 
