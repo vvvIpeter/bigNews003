@@ -69,5 +69,54 @@
         </div>
     </div>
 </body>
+<script src="./libs/http.js"></script>
+<script>
+    $(function () {
+        $.ajax({
+            //一进入页面发送ajax请求 获取用户相信信息 进行显示
+            type: 'get',
+            url: BigNew.user_detail,
+            success(backData) {
+                console.log(backData);
+                if (backData.code == 200) {
+                    // 显示信息
+                    // $('input.username').val(backData.data.username);
+                    for (var key in backData.data) {
+                        $('input.' + key).val(backData.data[key]);
+                    }
+                    $('img.user_pic').attr('src', backData.data.userPic);
+                }
+            }
+        });
+        //头像的预览
+        $('#exampleInputFile').on('change', function () {
+            var file1 = this.files[0];
+            var url = URL.createObjectURL(file1);
+            $('img.user_pic').attr('src', url);
+        });
+        //修改按钮的点击事件
+        $('.btn-edit').on('click', function (e) {
+            e.preventDefault();
+            // 创建FormData对象
+            var form1 = document.querySelector('form');
+            var fd1 = new FormData(form1);
+            //发送ajax请求 提交修改信息
+            $.ajax({
+                type: 'post',
+                url: BigNew.user_edit,
+                data: fd1,
+                contentType: false,
+                processData: false,
+                success: function (backData) {
+                    console.log(backData);
+                    if (backData.code == 200) {
+                        alert(backData.msg);
+                        parent.window.location.reload();
+                    }
+                }
+            })
+        });
+    })
+</script>
 
 </html>
