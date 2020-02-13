@@ -51,5 +51,37 @@
             </table>
         </div>
     </div>
+</body>
+<script src="./libs/http.js"></script>
+<!-- 准备一个模板 -->
+<script id="categra-temp" type="text/html">
+    {{each data v}}
+    <tr>
+                        <td>{{v.name}}</td>
+                        <td>{{v.slug}}</td>
+                        <td class="text-center">
+                            <a href="javascript:void(0)" data-id={{v.id}} data-toggle="modal" class=" btn btn-info btn-xs">编辑</a>
+                            <a href="javascript:void(0)"  data-id={{v.id}} class="btn btn-danger btn-xs">删除</a>
+                        </td>
+                    </tr>
+    {{/each}}
+    
+</script>
+<script>
+    $(function () {
+        //一进入页面就发送ajax请求 加载文章分类
+        $.ajax({
+            type: 'get',
+            url: BigNew.category_list,
+            success: function (backData) {
+                console.log(backData);
+                //使用模板引擎渲染
+                var resHtml = template('categra-temp', backData);
+                $('tbody').html(resHtml);
+
+            }
+        })
+    })
+</script>
 
 </html>
