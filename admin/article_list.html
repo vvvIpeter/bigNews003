@@ -72,6 +72,71 @@
             </div>
         </div>
     </div>
+    <!-- 下拉菜单的模板 -->
+    <script src="./libs/http.js"></script>
+    <script id="categroyList_temp" type="text/html">
+         <option value="">所有分类</option>
+         {{each data v}}
+<option>{{v.name}}</option>
+         {{/each}}
+                            
+    </script>
+    <!-- //所有文章的模板 -->
+    <script id="categroyAll_temp" type="text/html">
+        {{each data.data v}}
+        <tr>
+                        <td>{{v.title}}</td>
+                        <td>{{v.author}}</td>
+                        <td>{{v.categroy}}</td>
+                        <td class="text-center">{{v.date}}</td>
+                        <td class="text-center">{{v.state}}</td>
+                        <td class="text-center">
+                            <a href="article_edit.html" class="btn btn-default btn-xs" data-id={{v.categroyId}}>编辑</a>
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs delete" data-id={{v.categroyId}}>删除</a>
+                        </td>
+                    </tr>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            //点击所有分类下拉菜单 显示所有文章分类
+            $('#selCategory').on('click', function () {
+                //发送ajax请求
+                $.ajax({
+                    type: 'get',
+                    url: BigNew.category_list,
+                    success: function (backData) {
+                        console.log(backData);
+                        //通过模板引擎渲染到页面上
+                        var resHtml = template('categroyList_temp', backData);
+                        $('#selCategory').html(resHtml);
+
+                    }
+                })
+            });
+
+            //一进入页面 发送ajax请求  显示所有文章
+            getData();
+            function getData() {
+                $.ajax({
+                    type: 'get',
+                    url: BigNew.article_query,
+                    success: function (backData) {
+                        console.log(backData);
+                        if (backData.code == 200) {
+                            //获取成功
+                            // 通过模板引擎渲染到页面上
+                            var resHtml = template('categroyAll_temp', backData);
+                            $('tbody').html(resHtml);
+                        }
+
+                    }
+                })
+            }
+
+
+        })
+    </script>
 </body>
 
 </html>
