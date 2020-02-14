@@ -51,6 +51,37 @@
             </table>
         </div>
     </div>
+    <!-- //bootstrap模态框 -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">新增分类</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <!-- //自己加的隐藏域 -->
+                        <input type="hidden" id="categoryId" name="id">
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">文章分类名:</label>
+                            <input type="text" class="form-control" id="recipient-name" name="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">文章介绍:</label>
+                            <textarea class="form-control" id="message-text" name="slug"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="btn-close">关闭</button>
+                    <button type="button" class="btn btn-primary" id="btnAdd">新增</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 <script src="./libs/http.js"></script>
 <!-- 准备一个模板 -->
@@ -60,27 +91,135 @@
                         <td>{{v.name}}</td>
                         <td>{{v.slug}}</td>
                         <td class="text-center">
-                            <a href="javascript:void(0)" data-id={{v.id}} data-toggle="modal" class=" btn btn-info btn-xs">编辑</a>
-                            <a href="javascript:void(0)"  data-id={{v.id}} class="btn btn-danger btn-xs">删除</a>
+                            <a href="javascript:void(0)" data-id={{v.id}} data-toggle="modal" class=" btn btn-info btn-xs" data-toggle="modal" data-target="#myModal">编辑</a>
+                            <a href="javascript:void(0)"  data-id={{v.id}} class="btn btn-danger btn-xs btn-delete">删除</a>
                         </td>
                     </tr>
     {{/each}}
     
 </script>
+<script src="./libs/http.js"></script>
 <script>
     $(function () {
-        //一进入页面就发送ajax请求 加载文章分类
-        $.ajax({
-            type: 'get',
-            url: BigNew.category_list,
-            success: function (backData) {
-                console.log(backData);
-                //使用模板引擎渲染
-                var resHtml = template('categra-temp', backData);
-                $('tbody').html(resHtml);
+        getData();
+        function getData() {
+            //一进入页面就发送ajax请求 加载文章分类
+            $.ajax({
+                type: 'get',
+                url: BigNew.category_list,
+                success: function (backData) {
+                    console.log(backData);
+                    //使用模板引擎渲染
+                    var resHtml = template('categra-temp', backData);
+                    $('tbody').html(resHtml);
+                }
+            })
+        };
+        //关于模态框
+        //点击的是 新增按钮弹出的模态框还是 页面编辑按钮弹出的呢?
+        $('#myModal').on('show.bs.modal	', function (e) {
+            // console.log(e.relatedTarget);
+            //e.relatedTarget是dom元素  获取当前被点击的按钮
+            if ($(e.relatedTarget).text() == "新增分类") {
+                //先判断点击的是页面上的新增分类按钮还是 页面上的编辑按钮
+                //修改弹出的模态框的显示信息
+                $('#exampleModalLabel').text('新增分类');
+                $('#btnAdd').text('新增').addClass('btn-primary').removeClass('btn-success');
+            } else {
+                //如果点击的是页面上的编辑按钮
+                // 修改弹出框的显示信息
+                $('#exampleModalLabel').text('编辑分类');
+                $('#btnAdd').text('编辑').addClass('btn-success').removeClass('btn-primary');
+                // 当前点击所在的行的信息显示在模态框上
+                // $('#recipient-name').val($(e.relatedTarget).parent().perv().prev().text());
+                // $('#message-text').val($(te.relatedTarget).parent().prev().text());
+                $('#recipient-name').val($(e.relatedTarget).parent().prev().prev().text().trim());
+                $('#message-text').val($(e.relatedTarget).parent().prev().text().trim());
+                $('#categoryId').val($(e.relatedTarget).attr('data-id'));
 
             }
         })
+
+        //模态框上 新增或者编辑按钮的点击事件
+        $('#btnAdd').on('click', function () {
+            if ($(this).hasClass('btn-primary')) {//如果当前点击的按钮拥有这个类,那这个按钮就是新增按钮
+                //注意是模态框中的新增按钮
+                // 获取用户输入的内容
+                var name = $('#recipient-name').val().trim();
+                var slug = $('#message-text').val().trim();
+                // 发送ajax请求
+                $.ajax({
+                    type: 'post',
+                    url: BigNew.category_add,
+                    data: {
+                        name: name,
+                        slug: slug
+                    },
+                    success: function (backData) {
+                        // console.log(backData);
+                        if (backData.code == 201) {
+                            //隐藏模态框
+                            $('#myModal').modal('hide');
+                            //清空模态框中的数据
+                            $('#recipient-name').val("");
+                            $('#message-text').val("");
+                            //刷新页面
+                            getData();
+                        }
+
+                    }
+
+                })
+
+            } else {
+                //模态框中编辑按钮的事件
+                var data = $('form').serialize();
+                $.ajax({
+                    type: 'post',
+                    url: BigNew.category_edit,
+                    data: data,
+                    success: function (backData) {
+                        // console.log(backData);
+                        if (backData.code == 200) {
+                            //编辑成功
+                            // 关闭模态框
+                            $('#myModal').modal('hide');
+                            getData();
+                        }
+
+                    }
+                })
+            }
+        })
+        //模态框中 关闭按钮的点击事件
+
+        $('#btn-close').on('click', function () {
+            //重置表单  是dom方法
+            $('form')[0].reset();
+        });
+
+        //页面中删除按钮的点击事件  委托注册
+        $('tbody').on('click', 'a.btn-delete', function () {
+            if (confirm('确定要删除吗?')) {
+                var id = $(this).attr('data-id');
+                $.ajax({
+                    type: 'post',
+                    url: BigNew.category_delete,
+                    data: {
+                        id: id
+                    },
+                    success: function (backData) {
+                        console.log(backData);
+                        if (backData.code == 204) {
+                            //删除成功
+                            // 刷新数据
+                            getData();
+                        }
+                    }
+                })
+            }
+        })
+
     })
 </script>
 
